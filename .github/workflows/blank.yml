@@ -16,12 +16,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: 'npm'
       
       - name: Install dependencies
-        run: npm install
+        run: npm ci # More reliable than npm install
       
       - name: Run tests
         run: npm test
+        env:
+          CI: true # Important for test runners
 
   deploy:
     needs: test
@@ -30,9 +33,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+      
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod' # Add this if you want production deployment
